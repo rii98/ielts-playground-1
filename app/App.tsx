@@ -219,11 +219,13 @@ export function App() {
             onChange={(e) => (editing === "prompt" ? setPrompt(e.target.value) : setRubric(e.target.value))}
           />
           <p className="hint">
-            {editing === "prompt"
-              ? "Write {{RUBRIC}} in the prompt where the rubric should go. Run uses what's here, even before you save."
-              : rubric.trim() && !prompt.includes("{{RUBRIC}}")
-                ? "⚠ The prompt doesn't contain {{RUBRIC}}, so this rubric isn't sent."
-                : "The rubric is inserted into the prompt wherever it says {{RUBRIC}}."}
+            {unknownSlots(prompt).length > 0
+              ? `⚠ ${unknownSlots(prompt).join(", ")} isn't recognised and will be sent as plain text. Use {{RUBRIC}} for the rubric.`
+              : rubric.trim() && !hasRubricSlot(prompt)
+                ? "⚠ The prompt doesn't contain {{RUBRIC}}, so the rubric isn't sent."
+                : editing === "prompt"
+                  ? "Write {{RUBRIC}} in the prompt where the rubric should go. Run uses what's here, even before you save."
+                  : "The rubric is inserted into the prompt wherever it says {{RUBRIC}}."}
           </p>
           <div className="row">
             <input placeholder="What did you change? (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
@@ -282,6 +284,11 @@ export function App() {
     </div>
   );
 }
+
+// Same rule as the server: {{RUBRIC}} or {{RUBRICS}}, any letter case.
+const isRubricSlot = (slot: string) => /^\{\{\s*rubrics?\s*\}\}$/i.test(slot);
+const hasRubricSlot = (text: string) => (text.match(/\{\{[^{}]*\}\}/g) ?? []).some(isRubricSlot);
+const unknownSlots = (text: string) => [...new Set((text.match(/\{\{[^{}]*\}\}/g) ?? []).filter((s) => !isRubricSlot(s)))];
 
 /** If the answer is JSON (optionally in a ``` block), indent it; otherwise show it as is. */
 function pretty(text: string): string {

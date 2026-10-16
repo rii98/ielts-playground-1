@@ -79,9 +79,12 @@ interface RunInput {
   sampleImage?: string;
 }
 
+/** Where the rubric goes in the prompt: {{RUBRIC}} or {{RUBRICS}}, any letter case. */
+const RUBRIC_SLOT = /\{\{\s*rubrics?\s*\}\}/gi;
+
 /** What the AI receives: the prompt (with the rubric dropped in) as instructions, the task + response as the message. */
 export function buildPrompt(input: RunInput) {
-  const system = input.prompt.replaceAll("{{RUBRIC}}", input.rubric);
+  const system = input.prompt.replace(RUBRIC_SLOT, () => input.rubric);
   const words = input.essay.trim() ? input.essay.trim().split(/\s+/).length : 0;
   const user = `Question:\n${input.question.trim()}\n\nResponse (${words} words):\n${input.essay.trim()}`;
   return { system, user };
