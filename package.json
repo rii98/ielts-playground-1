@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5199 --strictPort --open",
-    "ping": "tsx server/ping.ts"
+    "ping": "tsx server/ping.ts",
+    "listen": "tsx server/listen.ts",
+    "reply": "tsx server/reply.ts",
+    "set-prompt": "tsx server/set-prompt.ts"
   },
   "engines": { "node": ">=22.13" },
   "dependencies": {

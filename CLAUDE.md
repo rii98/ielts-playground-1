@@ -28,6 +28,11 @@ is clear, and say briefly what you did and what to look at in the browser.
   (`runs`), and the open task (`state`). The page autosaves as you type, so a refresh loses
   nothing. Rows are JSON, so new things can be stored without changing the tables.
 - `server/ollama.ts` makes the call to Ollama (`gemma4:31b-cloud`, key in `.env`).
+- `/feedback` (`app/Feedback.tsx`) draws the latest Run from `tasks/<task>/structure.json`: the answer's
+  shape read from the prompt's intent, plus how to show it. When the teacher says "start listening", the
+  `listen` skill watches the page's **Ask Claude** box and Save, and you keep the structure and the
+  feedback page up to date. Change the teacher's prompt only when they explicitly ask (with
+  `npm run set-prompt`); otherwise flag mistakes instead.
 - `app/App.tsx` is the page and `app/styles.css` its look. The output is shown as plain
   text, and indented if it is JSON.
 - Saved versions are separate from that: **Save** in the page writes `prompt.md` and `rubric.md` and makes a git commit with the

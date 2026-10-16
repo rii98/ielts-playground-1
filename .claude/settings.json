@@ -14,8 +14,15 @@
       "Bash(git revert:*)",
       "Bash(git init:*)",
       "Bash(cp .env.example .env)",
-      "Bash(open -e .env)"
+      "Bash(open -e .env)",
+      "Bash(npm run listen)",
+      "Bash(npm run reply:*)",
+      "Bash(npx tsc --noEmit -p .)",
+      "Edit(app/**)",
+      "Edit(tasks/*/structure.json)"
     ],
-    "deny": ["Read(./.env)"]
+    "deny": [
+      "Read(./.env)"
+    ]
   }
 }

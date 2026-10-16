@@ -10,6 +10,7 @@ import { ROOT } from "./paths.ts";
 //   drafts  one row per task: unsaved prompt/rubric + the essay being worked on
 //   runs    every Run: what was sent and what came back
 //   state   small page settings, e.g. the open task
+//   requests  what the teacher asked Claude from the page (see requests.ts)
 
 const g = globalThis as { __playgroundDb?: DatabaseSync };
 
@@ -24,6 +25,7 @@ export function db(): DatabaseSync {
       CREATE TABLE IF NOT EXISTS runs (id INTEGER PRIMARY KEY AUTOINCREMENT, task TEXT NOT NULL, created_at TEXT NOT NULL, data TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS runs_by_task ON runs (task, id);
       CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS requests (id INTEGER PRIMARY KEY AUTOINCREMENT, task TEXT NOT NULL, created_at TEXT NOT NULL, data TEXT NOT NULL);
     `);
     g.__playgroundDb = d;
   }

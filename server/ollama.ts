@@ -22,6 +22,8 @@ export interface ChatInput {
   user: string;
   /** Base64 images (no data: prefix), attached to the user message. */
   images?: string[];
+  /** A JSON Schema the answer must follow (Ollama's structured output). */
+  format?: object;
 }
 
 /** One chat call to Ollama. Returns the model's reply exactly as it came back. */
@@ -37,7 +39,7 @@ export async function chat(input: ChatInput): Promise<{ text: string; model: str
   const res = await fetch(`${s.baseUrl}/api/chat`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${s.key}` },
-    body: JSON.stringify({ model: s.model, stream: false, messages }),
+    body: JSON.stringify({ model: s.model, stream: false, messages, ...(input.format ? { format: input.format } : {}) }),
     signal: AbortSignal.timeout(180_000),
   });
   if (!res.ok) {

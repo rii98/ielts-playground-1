@@ -1,0 +1,294 @@
+{
+  "builtFor": "You are an IELTS Writing Task 2 examiner. Assess the candidate’s essay using the official IELTS band descriptors: Task Response, Coherence and Cohesion, Lexical Resource, and Grammatical Range and Accuracy. Provide a band score for each criterion, an overall band score, brief justifications, and specific suggestions for improvement. Be accurate, fair, and evidence-based. Also annotate the essay: for each specific mistake, quote the exact words from the essay, say what is wrong, and give an improved version.",
+  "summary": "A report: band gauge and four criterion scores, strengths and priority improvements, the task, then the essay with colour-coded numbered annotations (filter by criterion; Original/Improved views) beside a list of them.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "task_response": {
+        "type": "object",
+        "title": "Task Response",
+        "properties": {
+          "band": {
+            "type": "number",
+            "title": "Band",
+            "minimum": 0,
+            "maximum": 9,
+            "description": "The Task Response band score, 0–9 in half bands"
+          },
+          "justification": {
+            "type": "string",
+            "title": "Justification",
+            "description": "A brief, evidence-based reason for the Task Response band, quoting the essay where useful"
+          },
+          "suggestions": {
+            "type": "array",
+            "title": "Suggestions",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific suggestions to improve Task Response"
+          }
+        },
+        "required": [
+          "band",
+          "suggestions"
+        ]
+      },
+      "coherence_and_cohesion": {
+        "type": "object",
+        "title": "Coherence and Cohesion",
+        "properties": {
+          "band": {
+            "type": "number",
+            "title": "Band",
+            "minimum": 0,
+            "maximum": 9,
+            "description": "The Coherence and Cohesion band score, 0–9 in half bands"
+          },
+          "justification": {
+            "type": "string",
+            "title": "Justification",
+            "description": "A brief, evidence-based reason for the Coherence and Cohesion band, quoting the essay where useful"
+          },
+          "suggestions": {
+            "type": "array",
+            "title": "Suggestions",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific suggestions to improve Coherence and Cohesion"
+          }
+        },
+        "required": [
+          "band",
+          "suggestions"
+        ]
+      },
+      "lexical_resource": {
+        "type": "object",
+        "title": "Lexical Resource",
+        "properties": {
+          "band": {
+            "type": "number",
+            "title": "Band",
+            "minimum": 0,
+            "maximum": 9,
+            "description": "The Lexical Resource band score, 0–9 in half bands"
+          },
+          "justification": {
+            "type": "string",
+            "title": "Justification",
+            "description": "A brief, evidence-based reason for the Lexical Resource band, quoting the essay where useful"
+          },
+          "suggestions": {
+            "type": "array",
+            "title": "Suggestions",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific suggestions to improve Lexical Resource"
+          }
+        },
+        "required": [
+          "band",
+          "suggestions"
+        ]
+      },
+      "grammatical_range_and_accuracy": {
+        "type": "object",
+        "title": "Grammatical Range and Accuracy",
+        "properties": {
+          "band": {
+            "type": "number",
+            "title": "Band",
+            "minimum": 0,
+            "maximum": 9,
+            "description": "The Grammatical Range and Accuracy band score, 0–9 in half bands"
+          },
+          "justification": {
+            "type": "string",
+            "title": "Justification",
+            "description": "A brief, evidence-based reason for the Grammatical Range and Accuracy band, quoting the essay where useful"
+          },
+          "suggestions": {
+            "type": "array",
+            "title": "Suggestions",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific suggestions to improve Grammatical Range and Accuracy"
+          }
+        },
+        "required": [
+          "band",
+          "suggestions"
+        ]
+      },
+      "overall_band": {
+        "type": "number",
+        "title": "Overall band",
+        "minimum": 0,
+        "maximum": 9,
+        "description": "The overall band score, 0–9 in half bands"
+      },
+      "annotations": {
+        "type": "array",
+        "title": "Annotations",
+        "description": "Every specific mistake in the essay, one item each",
+        "items": {
+          "type": "object",
+          "properties": {
+            "quote": {
+              "type": "string",
+              "title": "Quote",
+              "description": "The exact words from the essay, copied character for character (a short phrase, not a whole sentence)"
+            },
+            "criterion": {
+              "type": "string",
+              "title": "Criterion",
+              "description": "Which criterion the mistake belongs to: Task Response, Coherence and Cohesion, Lexical Resource, or Grammatical Range and Accuracy"
+            },
+            "mistake": {
+              "type": "string",
+              "title": "Mistake",
+              "description": "What is wrong, in one short sentence"
+            },
+            "improvement": {
+              "type": "string",
+              "title": "Improvement",
+              "description": "The improved version of the quoted words"
+            }
+          },
+          "required": [
+            "quote",
+            "criterion",
+            "mistake",
+            "improvement"
+          ]
+        }
+      }
+    },
+    "required": [
+      "task_response",
+      "coherence_and_cohesion",
+      "lexical_resource",
+      "grammatical_range_and_accuracy",
+      "overall_band",
+      "annotations"
+    ]
+  },
+  "page": {
+    "title": "IELTS Writing Task 2 assessment",
+    "intro": "Band scores, reasons and next steps for each criterion.",
+    "overall": {
+      "label": "Overall band",
+      "field": "overall_band",
+      "average": "band",
+      "rounding": "ielts",
+      "ring": true
+    },
+    "chart": {
+      "title": "Bands at a glance",
+      "field": "band",
+      "max": 9
+    },
+    "layout": "list",
+    "sections": [
+      {
+        "key": "task_response",
+        "title": "Task Response"
+      },
+      {
+        "key": "coherence_and_cohesion",
+        "title": "Coherence and Cohesion"
+      },
+      {
+        "key": "lexical_resource",
+        "title": "Lexical Resource"
+      },
+      {
+        "key": "grammatical_range_and_accuracy",
+        "title": "Grammatical Range and Accuracy"
+      }
+    ],
+    "fields": [
+      {
+        "key": "band",
+        "kind": "circle",
+        "label": "Band"
+      },
+      {
+        "key": "justification",
+        "kind": "text",
+        "label": "Why this band"
+      },
+      {
+        "key": "suggestions",
+        "kind": "bullets",
+        "label": "How to improve"
+      }
+    ],
+    "theme": {
+      "accent": "#4f7a6b",
+      "accentText": "#ffffff",
+      "background": "#f5f6f3",
+      "card": "#ffffff",
+      "text": "#2c312e",
+      "muted": "#6f7772",
+      "line": "#e2e6e1",
+      "radius": 12,
+      "font": "system"
+    },
+    "css": "/* calm, soft depth */\n.feedback-page .criterion { box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 10px 28px -18px rgb(0 0 0 / .16); transition: none; border-radius: 16px; padding: 18px 20px 18px 24px; }\n.feedback-page .criterion:hover { transform: none; }\n.feedback-page .criterion::before { width: 4px; opacity: .55; }\n.feedback-page .overall { border-radius: 16px; padding: 18px 20px; background: linear-gradient(135deg, var(--a), color-mix(in srgb, var(--a) 70%, #1d3b33)); box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--a) 80%, transparent); }\n.feedback-page .overall > span { font-size: 15px; font-weight: 600; }\n.feedback-page .chart { padding-top: 16px; }\n.feedback-page .field-label { color: var(--a); }\n.feedback-page .field-suggestions { padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--a) 6%, var(--c)); }\n.feedback-page .field-suggestions li::before { content: '→'; left: 2px; }\n.feedback-page h1 { font-size: 28px; letter-spacing: -.02em; }",
+    "essay": {
+      "title": "Student's essay",
+      "annotations": {
+        "field": "annotations",
+        "quote": "quote",
+        "criterion": "criterion",
+        "mistake": "mistake",
+        "improvement": "improvement"
+      }
+    },
+    "template": "report",
+    "report": {
+      "title": "Estimated Task 2 band score",
+      "overall": "overall_band",
+      "criteria": [
+        {
+          "key": "task_response",
+          "label": "Task Response",
+          "short": "Task",
+          "color": "#ec6a7d"
+        },
+        {
+          "key": "coherence_and_cohesion",
+          "label": "Coherence & Cohesion",
+          "short": "Coherence",
+          "color": "#41aee8"
+        },
+        {
+          "key": "lexical_resource",
+          "label": "Lexical Resource",
+          "short": "Lexical",
+          "color": "#a083ef"
+        },
+        {
+          "key": "grammatical_range_and_accuracy",
+          "label": "Grammatical Range & Accuracy",
+          "short": "Grammar",
+          "color": "#efb52e"
+        }
+      ],
+      "band": "band",
+      "suggestions": "suggestions",
+      "annotations": {
+        "field": "annotations",
+        "quote": "quote",
+        "mistake": "mistake",
+        "improvement": "improvement",
+        "criterion": "criterion"
+      }
+    }
+  }
+}
