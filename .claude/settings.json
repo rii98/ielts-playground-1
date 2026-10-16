@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev)",
+      "Bash(npm run ping)",
+      "Bash(node -v)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git revert:*)",
+      "Bash(git init:*)",
+      "Bash(cp .env.example .env)",
+      "Bash(open -e .env)"
+    ],
+    "deny": ["Read(./.env)"]
+  }
+}
