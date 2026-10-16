@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // The whole page. Three columns: the essay to mark, the instructions (prompt +
 // rubric, editable and saved as versions), and what the AI returned.
@@ -28,6 +28,8 @@ interface Result {
   seconds: number;
   system: string;
   user: string;
+  /** Set on runs loaded back from the database. */
+  createdAt?: string;
 }
 
 async function call<T>(path: string, body?: unknown): Promise<T> {
@@ -39,10 +41,22 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 
 const OWN = "";
 
+/** Everything typed for one task — autosaved to the server (data/playground.db) so a refresh loses nothing. */
+interface Draft {
+  prompt: string;
+  rubric: string;
+  sampleId: string;
+  question: string;
+  essay: string;
+  upload?: string;
+}
+
 export function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskId, setTaskId] = useState("task2");
+  const [taskId, setTaskId] = useState<string>();
   const task = tasks.find((t) => t.id === taskId);
+  /** True once the current task's draft has loaded — nothing is autosaved before that. */
+  const [ready, setReady] = useState(false);
 
   // essay
   const [samples, setSamples] = useState<Sample[]>([]);
@@ -69,29 +83,75 @@ export function App() {
 
   const dirty = prompt !== saved.prompt || rubric !== saved.rubric;
 
+  // Open on the task that was open last time.
   useEffect(() => {
-    call<Task[]>("/tasks").then(setTasks).catch((e) => setError(e.message));
+    Promise.all([call<Task[]>("/tasks"), call<{ task: string | null }>("/state")])
+      .then(([list, state]) => {
+        setTasks(list);
+        setTaskId(list.some((t) => t.id === state.task) ? state.task! : (list.find((t) => t.id === "task2") ?? list[0])?.id);
+      })
+      .catch((e) => setError(e.message));
   }, []);
 
+  // Load a task: its saved files, its samples, and — if there is one — the unsaved draft and last run.
   useEffect(() => {
-    setResult(undefined);
+    if (!taskId) return;
+    let cancelled = false;
+    setReady(false);
     setMessage(undefined);
-    setUpload(undefined);
     setShowHistory(false);
-    call<{ prompt: string; rubric: string }>(`/task?task=${taskId}`).then((t) => {
-      setPrompt(t.prompt);
-      setRubric(t.rubric);
-      setSaved(t);
-    });
-    call<Sample[]>(`/samples?task=${taskId}`).then((list) => {
-      setSamples(list);
-      pick(list[0]);
-    });
+    setError(undefined);
+    void call("/state", { task: taskId });
+    Promise.all([
+      call<{ prompt: string; rubric: string }>(`/task?task=${taskId}`),
+      call<Sample[]>(`/samples?task=${taskId}`),
+      call<Draft | null>(`/draft?task=${taskId}`),
+      call<Result | null>(`/last-run?task=${taskId}`),
+    ])
+      .then(([files, list, draft, last]) => {
+        if (cancelled) return;
+        setSaved(files);
+        setSamples(list);
+        setPrompt(draft?.prompt ?? files.prompt);
+        setRubric(draft?.rubric ?? files.rubric);
+        if (draft) {
+          setSampleId(draft.sampleId);
+          setQuestion(draft.question);
+          setEssay(draft.essay);
+          setUpload(draft.upload);
+        } else pick(list[0]);
+        setResult(last ?? undefined);
+        setReady(true);
+      })
+      .catch((e) => !cancelled && setError(e.message));
     loadHistory();
+    return () => {
+      cancelled = true;
+    };
   }, [taskId]);
 
+  // Autosave half a second after typing stops, and immediately when the page is closed or refreshed.
+  const latest = useRef<{ task: string; draft: Draft } | undefined>(undefined);
+  useEffect(() => {
+    if (!ready || !taskId) return;
+    const draft = { prompt, rubric, sampleId, question, essay, upload };
+    latest.current = { task: taskId, draft };
+    const timer = setTimeout(() => {
+      void call("/draft", latest.current);
+      latest.current = undefined;
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [ready, taskId, prompt, rubric, sampleId, question, essay, upload]);
+  useEffect(() => {
+    const flush = () => {
+      if (latest.current) navigator.sendBeacon("/api/draft", new Blob([JSON.stringify(latest.current)], { type: "application/json" }));
+    };
+    window.addEventListener("pagehide", flush);
+    return () => window.removeEventListener("pagehide", flush);
+  }, []);
+
   function loadHistory() {
-    call<Version[]>(`/history?task=${taskId}`).then(setVersions).catch(() => setVersions([]));
+    if (taskId) call<Version[]>(`/history?task=${taskId}`).then(setVersions).catch(() => setVersions([]));
   }
 
   function pick(s: Sample | undefined) {
@@ -102,7 +162,9 @@ export function App() {
   }
 
   function switchTask(id: string) {
-    if (dirty && !window.confirm("You have unsaved changes to the prompt or rubric. Switch anyway and lose them?")) return;
+    // Flush the current task's draft first, so nothing typed in the last half-second is lost.
+    if (latest.current) void call("/draft", latest.current);
+    latest.current = undefined;
     setTaskId(id);
   }
 
@@ -266,6 +328,7 @@ export function App() {
           {result && (
             <p className="hint">
               {result.model ?? "—"} · {result.seconds.toFixed(1)}s
+              {result.createdAt && ` · last run ${new Date(result.createdAt).toLocaleString()}`}
             </p>
           )}
           {error && <p className="error">{error}</p>}

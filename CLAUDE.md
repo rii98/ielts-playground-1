@@ -23,10 +23,14 @@ is clear, and say briefly what you did and what to look at in the browser.
   - `samples/*.json` holds essays to try: `title`, `question`, `essay`, and `image` for a chart file next to it
 - `server/api.ts` builds what is sent to the AI and handles Run, Save and History.
   The message the AI gets is `Question: … Response (N words): …` (`buildPrompt`).
+- `server/db.ts` keeps work in progress in `data/playground.db` (SQLite built into Node, git-ignored):
+  each task's unsaved prompt/rubric and essay (`drafts`), every Run with its inputs and output
+  (`runs`), and the open task (`state`). The page autosaves as you type, so a refresh loses
+  nothing. Rows are JSON, so new things can be stored without changing the tables.
 - `server/ollama.ts` makes the call to Ollama (`gemma4:31b-cloud`, key in `.env`).
 - `app/App.tsx` is the page and `app/styles.css` its look. The output is shown as plain
   text, and indented if it is JSON.
-- **Save** in the page writes `prompt.md` and `rubric.md` and makes a git commit with the
+- Saved versions are separate from that: **Save** in the page writes `prompt.md` and `rubric.md` and makes a git commit with the
   teacher's note. **History** lists those commits. When you change those files yourself,
   commit too, so the teacher's history stays complete.
 

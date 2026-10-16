@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { chat } from "./ollama.ts";
+import { addRun, getDraft, getState, lastRun, putDraft, putState } from "./db.ts";
 import { ROOT } from "./paths.ts";
 
 // Everything the page asks the server for. Each task is a folder in tasks/:
@@ -16,6 +17,12 @@ const SAFE = /^[\w.-]+$/;
 function taskDir(id: string) {
   if (!SAFE.test(id) || !existsSync(join(TASKS, id, "task.json"))) throw new Error(`No task "${id}"`);
   return join(TASKS, id);
+}
+
+/** The task id, after checking the task exists. */
+function known(id: string) {
+  taskDir(id);
+  return id;
 }
 
 export async function route(path: string, q: URLSearchParams, body: any): Promise<unknown> {
@@ -62,6 +69,20 @@ export async function route(path: string, q: URLSearchParams, body: any): Promis
     case "/run":
       return run(body);
 
+    // ---- kept in data/playground.db so a refresh loses nothing ----
+    case "/draft":
+      if (body === undefined) return getDraft(known(id));
+      putDraft(known(id), body.draft);
+      return { ok: true };
+
+    case "/last-run":
+      return lastRun(known(id));
+
+    case "/state":
+      if (body === undefined) return { task: getState("task") };
+      putState("task", String(body.task));
+      return { ok: true };
+
     default:
       throw new Error(`Unknown request ${path}`);
   }
@@ -96,13 +117,18 @@ async function run(input: RunInput) {
   let image = input.imageBase64;
   if (!image && input.sampleImage && SAFE.test(input.sampleImage))
     image = readFileSync(join(taskDir(input.task), "samples", input.sampleImage)).toString("base64");
+  let result;
   try {
     const { text, model } = await chat({ system, user, images: image ? [image] : undefined });
-    return { ok: true, output: text, model, seconds: (Date.now() - started) / 1000, system, user };
+    result = { ok: true, output: text, model, seconds: (Date.now() - started) / 1000, system, user };
   } catch (err) {
     const message = (err as Error).name === "TimeoutError" ? "The AI took too long to answer. Try again." : (err as Error).message;
-    return { ok: false, error: message, seconds: (Date.now() - started) / 1000, system, user };
+    result = { ok: false, error: message, seconds: (Date.now() - started) / 1000, system, user };
   }
+  // Keep every run (inputs too, minus the image bytes) so it survives a refresh.
+  const { imageBase64, ...inputs } = input;
+  addRun(input.task, { ...result, input: { ...inputs, uploadedImage: !!imageBase64 } });
+  return result;
 }
 
 // ---------- saving & history (git) ----------

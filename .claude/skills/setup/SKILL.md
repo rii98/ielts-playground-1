@@ -5,7 +5,7 @@ description: First-time setup on the teacher's Mac — Node, install, Ollama key
 
 Walk the teacher through it one short step at a time; help if a step fails.
 
-1. `node -v`. If Node is missing or older than v20.12, ask them to install the LTS version from
+1. `node -v`. If Node is missing or older than v22.13, ask them to install the LTS version from
    https://nodejs.org (download the macOS installer, open it, click through) and say "done".
 2. `npm install`.
 3. If `git status` fails (the folder came as a ZIP), run
